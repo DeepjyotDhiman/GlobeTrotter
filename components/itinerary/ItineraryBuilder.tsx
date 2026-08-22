@@ -39,6 +39,7 @@ interface ItineraryBuilderProps {
 }
 
 export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: ItineraryBuilderProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [stops, setStops] = useState<StopItem[]>([]);
   const [activeModalDay, setActiveModalDay] = useState<number | null>(null);
@@ -57,6 +58,10 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
 
   const [formError, setFormError] = useState("");
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Fetch Activities & Stops for this specific tripId
   const fetchActivitiesData = () => {
     const fetched = getTripActivities(tripId);
@@ -65,12 +70,13 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
   };
 
   useEffect(() => {
+    if (!isMounted) return;
     fetchActivitiesData();
 
     const eventName = `activities_updated_${tripId}`;
     window.addEventListener(eventName, fetchActivitiesData);
     return () => window.removeEventListener(eventName, fetchActivitiesData);
-  }, [tripId]);
+  }, [tripId, isMounted]);
 
   // Helper Category Meta Icon & Color Badge
   const getCategoryMeta = (cat: ActivityCategory) => {
@@ -99,13 +105,11 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= dayActivities.length) return;
 
-    // Swap items in local day list
     const newDayList = [...dayActivities];
     const temp = newDayList[index];
     newDayList[index] = newDayList[targetIndex];
     newDayList[targetIndex] = temp;
 
-    // Reconstruct global activities list
     const otherActivities = activities.filter((a) => a.dayNumber !== dayNum);
     const updatedGlobal = [...otherActivities, ...newDayList];
 
@@ -135,7 +139,7 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
     setFormError("");
   };
 
-  // Save Activity Form Submit (Create or Update)
+  // Save Activity Form Submit
   const handleSaveActivity = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim()) {
@@ -144,7 +148,6 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
     }
 
     if (editingActivity) {
-      // Update existing activity
       updateTripActivity(tripId, editingActivity.id, {
         title: formData.title.trim(),
         time: formData.time.trim() || "10:00 AM",
@@ -155,7 +158,6 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
       });
       showToast(`Updated "${formData.title}"! ✨`);
     } else if (activeModalDay !== null) {
-      // Create new activity
       addTripActivity(tripId, {
         dayNumber: activeModalDay,
         time: formData.time.trim() || "10:00 AM",
@@ -179,14 +181,23 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
     setTimeout(() => setToastMessage(""), 3000);
   };
 
+  // Return loading skeleton until mounted on client
+  if (!isMounted) {
+    return (
+      <div className="space-y-6">
+        <div className="h-20 bg-slate-900 rounded-3xl animate-pulse" />
+        <div className="h-64 bg-slate-900 rounded-3xl animate-pulse" />
+      </div>
+    );
+  }
+
   // Compute Total Trip Budget
   const totalTripCost = activities.reduce((acc, act) => acc + (act.cost || 0), 0);
 
-  // Group activities by Day Number (1 to maxDays)
+  // Group activities by Day Number
   const maxDays = Math.max(totalDays, ...activities.map((a) => a.dayNumber), 3);
   const dayNumbers = Array.from({ length: maxDays }, (_, i) => i + 1);
 
-  // Map day numbers to city stop name if available
   const getCityForDay = (dayNum: number) => {
     if (stops.length === 0) return "Positano";
     const stopIndex = Math.min(Math.floor((dayNum - 1) / 2), stops.length - 1);
@@ -248,7 +259,7 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
 
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-medium text-slate-400 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
-                    Day Budget: <span className="text-emerald-400 font-bold">${dayCost}</span>
+                    Day Budget: <span className="text-emerald-400 font-bold">₹{dayCost}</span>
                   </span>
 
                   <button
@@ -326,7 +337,7 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
                             
                             {/* Cost Pill */}
                             <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
-                              {act.cost > 0 ? `$${act.cost}` : "Free"}
+                              {act.cost > 0 ? `₹${act.cost}` : "Free"}
                             </span>
 
                             {/* Reordering Up / Down Arrows */}
@@ -498,7 +509,7 @@ export default function ItineraryBuilder({ tripId = "1", totalDays = 5 }: Itiner
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Est. Cost ($ USD)
+                    Est. Cost (₹ INR)
                   </label>
                   <input
                     type="number"

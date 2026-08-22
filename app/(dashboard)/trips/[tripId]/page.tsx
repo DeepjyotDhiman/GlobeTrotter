@@ -38,6 +38,9 @@ export default function TripDetailsPage({ params }: TripDetailsPageProps) {
   const resolvedParams = use(params);
   const tripId = resolvedParams.tripId;
 
+  // Hydration Mounted Flag
+  const [isMounted, setIsMounted] = useState(false);
+
   // View Mode: 'timeline' or 'builder'
   const [viewMode, setViewMode] = useState<"timeline" | "builder">("builder");
 
@@ -46,6 +49,11 @@ export default function TripDetailsPage({ params }: TripDetailsPageProps) {
   const [stops, setStops] = useState<StopItem[]>([]);
   const [isAddStopOpen, setIsAddStopOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  // Ensure hydration synchronization
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Fetch Trip & Stops dynamically
   const fetchTripData = () => {
@@ -73,12 +81,13 @@ export default function TripDetailsPage({ params }: TripDetailsPageProps) {
   };
 
   useEffect(() => {
+    if (!isMounted) return;
     fetchTripData();
 
     const eventName = `stops_updated_${tripId}`;
     window.addEventListener(eventName, fetchTripData);
     return () => window.removeEventListener(eventName, fetchTripData);
-  }, [tripId]);
+  }, [tripId, isMounted]);
 
   // Add stop handler
   const handleAddStop = (newStopData: any) => {
@@ -119,8 +128,21 @@ export default function TripDetailsPage({ params }: TripDetailsPageProps) {
   // Calculated totals
   const totalNights = stops.reduce((acc, curr) => acc + curr.nights, 0);
 
+  // Return SSR hydration skeleton until component mounts on client
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans" suppressHydrationWarning>
+        <Navbar />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" suppressHydrationWarning>
+          <div className="h-64 rounded-3xl bg-slate-900 border border-slate-800 animate-pulse" />
+          <div className="h-96 rounded-3xl bg-slate-900 border border-slate-800 animate-pulse" />
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-white" suppressHydrationWarning>
       {/* Top Navbar */}
       <Navbar onPlanTripClick={() => setIsAddStopOpen(true)} />
 
@@ -133,7 +155,7 @@ export default function TripDetailsPage({ params }: TripDetailsPageProps) {
       )}
 
       {/* Main Page Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" suppressHydrationWarning>
         
         {/* Back Link */}
         <Link

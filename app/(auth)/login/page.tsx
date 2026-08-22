@@ -9,6 +9,7 @@ import {
   Lock,
   Eye,
   EyeOff,
+  ArrowLeft,
   ArrowRight,
   AlertCircle,
   Sparkles,
@@ -107,12 +108,22 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-4 sm:p-6 lg:p-8 font-sans">
+      
+      {/* Top-Left Back Button */}
+      <Link
+        href="/"
+        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900/70 hover:bg-slate-800/90 backdrop-blur-xl border border-slate-800 text-xs sm:text-sm font-semibold text-slate-300 hover:text-cyan-400 transition-all shadow-lg hover:border-cyan-500/40 group"
+      >
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <span>Back to Home</span>
+      </Link>
+
       {/* Decorative Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[30rem] h-[30rem] bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Floating Travel Badges (Desktop) */}
-      <div className="hidden lg:flex items-center gap-2 absolute top-12 left-12 px-4 py-2 rounded-full bg-white/10 dark:bg-slate-800/40 backdrop-blur-md border border-white/10 text-cyan-300 text-sm shadow-xl animate-pulse">
+      <div className="hidden lg:flex items-center gap-2 absolute top-12 left-52 px-4 py-2 rounded-full bg-white/10 dark:bg-slate-800/40 backdrop-blur-md border border-white/10 text-cyan-300 text-sm shadow-xl animate-pulse">
         <Plane className="w-4 h-4 text-cyan-400" />
         <span>Next Destination: Santorini, Greece</span>
       </div>

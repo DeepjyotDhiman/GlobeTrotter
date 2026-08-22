@@ -11,19 +11,46 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/(auth)/login/page": [
+    "/(dashboard)/trips/new/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(auth)/login/page.js"
+      "static/chunks/app/(dashboard)/trips/new/page.js"
     ],
-    "/(auth)/register/page": [
+<<<<<<< HEAD
+    "/(dashboard)/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(auth)/register/page.js"
+      "static/chunks/app/(dashboard)/dashboard/page.js"
+    ],
+    "/(dashboard)/trips/[tripId]/page": [
+=======
+    "/(auth)/register/page": [
+>>>>>>> origin/main
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/trips/[tripId]/page.js"
+    ],
+    "/(dashboard)/community/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/community/page.js"
+    ],
+    "/(dashboard)/explore/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/explore/page.js"
+    ],
+    "/(dashboard)/trips/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/trips/page.js"
     ],
     "/(dashboard)/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
+<<<<<<< HEAD
+      "static/chunks/app/(dashboard)/profile/page.js"
+=======
       "static/chunks/app/(dashboard)/dashboard/page.js"
     ],
     "/(dashboard)/trips/[tripId]/page": [
@@ -55,6 +82,7 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/_not-found/page.js"
+>>>>>>> origin/main
     ]
   }
 }

@@ -1,8 +1,8 @@
-// File: D:\GlobeTrotter\app\(auth)\login\page.tsx
-import * as entry from '../../../../../app/(auth)/login/page.js'
+// File: C:\Users\PC\GlobeTrotter\app\(dashboard)\trips\new\page.tsx
+import * as entry from '../../../../../../app/(dashboard)/trips/new/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-type TEntry = typeof import('../../../../../app/(auth)/login/page.js')
+type TEntry = typeof import('../../../../../../app/(dashboard)/trips/new/page.js')
 
 type SegmentParams<T extends Object = any> = T extends Record<string, any>
   ? { [K in keyof T]: T[K] extends string ? string | string[] | undefined : never }
