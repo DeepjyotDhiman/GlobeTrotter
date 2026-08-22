@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Globe,
   Mail,
@@ -25,7 +25,34 @@ interface AuthScreenProps {
 
 export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Mode State (login vs signup vs forgot)
   const [mode, setMode] = useState<"login" | "signup" | "forgot">(initialMode);
+
+  // Sync mode with URL pathname and initialMode prop
+  useEffect(() => {
+    if (pathname.includes("/register")) {
+      setMode("signup");
+    } else if (pathname.includes("/login")) {
+      setMode("login");
+    } else if (initialMode) {
+      setMode(initialMode);
+    }
+  }, [pathname, initialMode]);
+
+  // Handler for tab switching that updates the URL accordingly
+  const handleSwitchMode = (newMode: "login" | "signup" | "forgot") => {
+    setMode(newMode);
+    setErrors({});
+    setServerError("");
+
+    if (newMode === "login") {
+      window.history.pushState(null, "", "/login");
+    } else if (newMode === "signup") {
+      window.history.pushState(null, "", "/register");
+    }
+  };
 
   // Form Field States
   const [formData, setFormData] = useState({
@@ -222,11 +249,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
             <div className="grid grid-cols-2 p-1 mb-6 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-xs sm:text-sm font-medium">
               <button
                 type="button"
-                onClick={() => {
-                  setMode("login");
-                  setErrors({});
-                  setServerError("");
-                }}
+                onClick={() => handleSwitchMode("login")}
                 className={`py-2 rounded-lg transition-all duration-200 ${
                   mode === "login"
                     ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-cyan-400 shadow-sm font-semibold"
@@ -237,11 +260,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMode("signup");
-                  setErrors({});
-                  setServerError("");
-                }}
+                onClick={() => handleSwitchMode("signup")}
                 className={`py-2 rounded-lg transition-all duration-200 ${
                   mode === "signup"
                     ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-cyan-400 shadow-sm font-semibold"
@@ -276,10 +295,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
               </p>
               <button
                 type="button"
-                onClick={() => {
-                  setMode("login");
-                  setResetSent(false);
-                }}
+                onClick={() => handleSwitchMode("login")}
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium transition-all"
               >
                 Back to Sign In
@@ -368,10 +384,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
                     {mode === "login" && (
                       <button
                         type="button"
-                        onClick={() => {
-                          setMode("forgot");
-                          setErrors({});
-                        }}
+                        onClick={() => handleSwitchMode("forgot")}
                         className="text-xs font-medium text-cyan-600 hover:text-cyan-500 dark:text-cyan-400 transition-colors"
                       >
                         Forgot password?
@@ -543,10 +556,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setMode("login");
-                      setErrors({});
-                    }}
+                    onClick={() => handleSwitchMode("login")}
                     className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
                   >
                     ← Back to Sign In
@@ -631,10 +641,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
                 Don't have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode("signup");
-                    setErrors({});
-                  }}
+                  onClick={() => handleSwitchMode("signup")}
                   className="font-semibold text-cyan-600 hover:text-cyan-500 dark:text-cyan-400 hover:underline"
                 >
                   Sign up now
@@ -645,10 +652,7 @@ export default function AuthScreen({ initialMode = "login" }: AuthScreenProps) {
                 Already have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => {
-                    setMode("login");
-                    setErrors({});
-                  }}
+                  onClick={() => handleSwitchMode("login")}
                   className="font-semibold text-cyan-600 hover:text-cyan-500 dark:text-cyan-400 hover:underline"
                 >
                   Sign in
