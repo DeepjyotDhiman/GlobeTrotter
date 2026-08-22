@@ -1,1 +1,299 @@
+// =============================================================================
+// GlobeTrotter — Prisma Database Schema
+// =============================================================================
+// Models: User, Trip, TripStop, City, Activity, ItineraryItem, Expense, TripShare
+// =============================================================================
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum TripStatus {
+  DRAFT
+  PLANNING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ActivityCategory {
+  SIGHTSEEING
+  FOOD
+  ADVENTURE
+  CULTURE
+  SHOPPING
+  RELAXATION
+  TRANSPORT
+  ACCOMMODATION
+  NIGHTLIFE
+  OTHER
+}
+
+enum ExpenseCategory {
+  ACCOMMODATION
+  TRANSPORT
+  FOOD
+  ACTIVITIES
+  SHOPPING
+  HEALTH
+  COMMUNICATION
+  OTHER
+}
+
+// =============================================================================
+// USER
+// =============================================================================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  avatarUrl    String?
+  bio          String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  trips      Trip[]
+  expenses   Expense[]
+  tripShares TripShare[]
+
+  @@map("users")
+}
+
+// =============================================================================
+// TRIP
+// =============================================================================
+
+model Trip {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  coverImage  String?
+  status      TripStatus @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+
+  // Budget stored as high-precision decimal to avoid floating-point errors
+  budget   Decimal? @db.Decimal(12, 2)
+  currency String   @default("USD")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Owner — cascade: deleting a user deletes all their trips
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  stops          TripStop[]
+  expenses       Expense[]
+  itineraryItems ItineraryItem[]
+  share          TripShare?
+
+  @@index([userId])
+  @@index([status])
+  @@map("trips")
+}
+
+// =============================================================================
+// CITY  (reference / seed data — never deleted)
+// =============================================================================
+
+model City {
+  id          String  @id @default(cuid())
+  name        String
+  country     String
+  countryCode String  // ISO 3166-1 alpha-2, e.g. "FR"
+  lat         Float
+  lng         Float
+  timezone    String? // IANA timezone, e.g. "Europe/Paris"
+  imageUrl    String?
+  description String?
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  tripStops  TripStop[]
+  activities Activity[]
+
+  // Search optimisation on the most common lookup field
+  @@index([name])
+  @@index([countryCode])
+  @@map("cities")
+}
+
+// =============================================================================
+// TRIP STOP  (ordered city visits within a trip)
+// =============================================================================
+
+model TripStop {
+  id   String @id @default(cuid())
+
+  // Visit order within the trip — 0-indexed, enforced unique per trip
+  visitOrder    Int
+  arrivalDate   DateTime?
+  departureDate DateTime?
+  notes         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Parent trip — cascade: deleting a trip deletes its stops
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  // City reference — cities are reference data and must not be deleted
+  cityId String
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Restrict)
+
+  // Relations
+  itineraryItems ItineraryItem[]
+
+  // A trip cannot have two stops with the same visit order
+  @@unique([tripId, visitOrder])
+  @@index([tripId])
+  @@map("trip_stops")
+}
+
+// =============================================================================
+// ACTIVITY  (reference / seed data — never deleted)
+// =============================================================================
+
+model Activity {
+  id              String           @id @default(cuid())
+  name            String
+  description     String?
+  category        ActivityCategory
+  estimatedCost   Decimal?         @db.Decimal(10, 2)
+  durationMinutes Int?
+  imageUrl        String?
+  address         String?
+
+  createdAt DateTime @default(now())
+
+  // City this activity belongs to
+  cityId String
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Restrict)
+
+  // Relations
+  itineraryItems ItineraryItem[]
+
+  @@index([cityId])
+  @@index([category])
+  @@map("activities")
+}
+
+// =============================================================================
+// ITINERARY ITEM  (scheduled activity within a trip stop)
+// =============================================================================
+
+model ItineraryItem {
+  id String @id @default(cuid())
+
+  // Scheduling — both itemDate and dayNumber stored for flexible display:
+  //   itemDate  = absolute calendar date (set when trip has fixed dates)
+  //   dayNumber = relative day within the stop, e.g. Day 1, Day 2 (always set)
+  itemDate  DateTime?
+  dayNumber Int?
+
+  // Time stored as "HH:MM" strings for timezone-agnostic display
+  startTime String?
+  endTime   String?
+
+  // Order of this item within its day / stop
+  sortOrder Int
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Direct trip reference for efficient full-trip queries
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  // The stop this item belongs to — cascade: deleting a stop deletes its items
+  tripStopId String
+  tripStop   TripStop @relation(fields: [tripStopId], references: [id], onDelete: Cascade)
+
+  // The activity being scheduled — activities are reference data, must not be deleted
+  activityId String
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Restrict)
+
+  @@index([tripId])
+  @@index([tripStopId])
+  @@index([activityId])
+  @@map("itinerary_items")
+}
+
+// =============================================================================
+// EXPENSE
+// =============================================================================
+
+model Expense {
+  id          String          @id @default(cuid())
+  amount      Decimal         @db.Decimal(12, 2)
+  currency    String          @default("USD")
+  category    ExpenseCategory
+  description String?
+  expenseDate DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Parent trip — cascade: deleting a trip deletes all its expenses
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  // User who recorded / paid the expense
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([tripId])
+  @@index([userId])
+  @@index([expenseDate])
+  @@map("expenses")
+}
+
+// =============================================================================
+// TRIP SHARE  (one active share record per trip)
+// =============================================================================
+
+model TripShare {
+  id String @id @default(cuid())
+
+  // Cryptographically random token used in share URLs
+  shareToken String  @unique
+  isActive   Boolean @default(true)
+
+  // Optional hard expiry — null means the link never expires
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // One share record per trip (1:1) — cascade: deleting a trip deletes its share
+  tripId String @unique
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  // User who created the share (must be the trip owner)
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  // Fast lookup by token — already covered by @unique, explicit index for clarity
+  @@index([shareToken])
+  @@index([createdById])
+  @@map("trip_shares")
+}
