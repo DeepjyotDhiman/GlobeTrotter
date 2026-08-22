@@ -1,4 +1,4 @@
-// File: C:\Users\PC\GlobeTrotter\app\(dashboard)\trips\[tripId]\page.tsx
+// File: D:\GlobeTrotter\app\(dashboard)\trips\[tripId]\page.tsx
 import * as entry from '../../../../../../app/(dashboard)/trips/[tripId]/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

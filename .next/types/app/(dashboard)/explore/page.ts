@@ -1,5 +1,15 @@
+<<<<<<< HEAD
+<<<<<<<< HEAD:.next/types/app/(dashboard)/explore/page.ts
 // File: C:\Users\PC\GlobeTrotter\app\(dashboard)\explore\page.tsx
 import * as entry from '../../../../../app/(dashboard)/explore/page.js'
+========
+// File: D:\GlobeTrotter\app\(auth)\register\page.tsx
+import * as entry from '../../../../../app/(auth)/register/page.js'
+>>>>>>>> origin/main:.next/types/app/(auth)/register/page.ts
+=======
+// File: D:\GlobeTrotter\app\(dashboard)\explore\page.tsx
+import * as entry from '../../../../../app/(dashboard)/explore/page.js'
+>>>>>>> origin/main
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
 type TEntry = typeof import('../../../../../app/(dashboard)/explore/page.js')
