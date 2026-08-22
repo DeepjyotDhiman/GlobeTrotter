@@ -22,38 +22,6 @@ const DEFAULT_FILTERS: CityFilterState = {
 };
 
 export default function ExplorePage() {
-<<<<<<< HEAD
-  const destinations = [
-    {
-      name: "Santorini, Greece",
-      rating: 4.9,
-      category: "Beach & Luxury",
-      price: "₹1,200",
-      image: "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      name: "Bali, Indonesia",
-      rating: 4.8,
-      category: "Nature & Retreat",
-      price: "₹850",
-      image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      name: "Swiss Alps, Switzerland",
-      rating: 4.9,
-      category: "Adventure & Skiing",
-      price: "₹1,600",
-      image: "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      name: "Reykjavik, Iceland",
-      rating: 4.7,
-      category: "Glaciers & Lights",
-      price: "₹1,400",
-      image: "https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=800&q=80",
-    },
-  ];
-=======
   const [cities, setCities] = useState<City[]>([]);
   const [popularCities, setPopularCities] = useState<City[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -101,7 +69,6 @@ export default function ExplorePage() {
     setModalTarget({ type: "city", item: city });
     setIsModalOpen(true);
   };
->>>>>>> origin/main
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-16">
