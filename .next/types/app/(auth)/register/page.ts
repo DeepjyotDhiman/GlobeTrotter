@@ -1,4 +1,4 @@
-// File: C:\Users\PC\GlobeTrotter\app\(auth)\register\page.tsx
+// File: D:\GlobeTrotter\app\(auth)\register\page.tsx
 import * as entry from '../../../../../app/(auth)/register/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
