@@ -22,7 +22,7 @@ export interface CityStopData {
   departureDate: string;
   nights: number;
   notes?: string;
-  imageUrl: string;
+  imageUrl?: string;
   activities?: string[];
 }
 
