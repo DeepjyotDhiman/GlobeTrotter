@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
   User,
+  ArrowLeft,
   ArrowRight,
   AlertCircle,
   Sparkles,
@@ -22,7 +23,7 @@ import {
 export default function RegisterPage() {
   const router = useRouter();
 
-  // Form State
+  // Form State - Strictly initialized with empty strings
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -117,11 +118,11 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Persist Mock Auth User to LocalStorage
-  const saveMockAuthUser = (name: string, email: string) => {
+  // Persist Auth User to LocalStorage
+  const saveAuthUser = (name: string, email: string) => {
     const mockUser = {
-      name: name.trim() || "pethe om",
-      email: email.trim() || "petheom05@gmail.com",
+      name: name.trim() || "New User",
+      email: email.trim() || "user@example.com",
     };
     localStorage.setItem("globetrotter_user", JSON.stringify(mockUser));
     localStorage.setItem("globetrotter_is_logged_in", "true");
@@ -137,7 +138,7 @@ export default function RegisterPage() {
 
     setTimeout(() => {
       setIsLoading(false);
-      saveMockAuthUser(formData.name, formData.email);
+      saveAuthUser(formData.name, formData.email);
       setAuthSuccess(true);
       setTimeout(() => {
         router.push("/dashboard");
@@ -150,7 +151,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-      saveMockAuthUser("pethe om", "petheom05@gmail.com");
+      saveAuthUser("Explorer User", "explorer@globetrotter.com");
       setAuthSuccess(true);
       setTimeout(() => {
         router.push("/dashboard");
@@ -160,12 +161,22 @@ export default function RegisterPage() {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-4 sm:p-6 lg:p-8 font-sans">
+      
+      {/* Top-Left Back Button */}
+      <Link
+        href="/"
+        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-900/70 hover:bg-slate-800/90 backdrop-blur-xl border border-slate-800 text-xs sm:text-sm font-semibold text-slate-300 hover:text-cyan-400 transition-all shadow-lg hover:border-cyan-500/40 group"
+      >
+        <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+        <span>Back to Home</span>
+      </Link>
+
       {/* Decorative Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[30rem] h-[30rem] bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Floating Travel Badges (Desktop) */}
-      <div className="hidden lg:flex items-center gap-2 absolute top-12 left-12 px-4 py-2 rounded-full bg-white/10 dark:bg-slate-800/40 backdrop-blur-md border border-white/10 text-cyan-300 text-sm shadow-xl animate-pulse">
+      <div className="hidden lg:flex items-center gap-2 absolute top-12 left-52 px-4 py-2 rounded-full bg-white/10 dark:bg-slate-800/40 backdrop-blur-md border border-white/10 text-cyan-300 text-sm shadow-xl animate-pulse">
         <Plane className="w-4 h-4 text-cyan-400" />
         <span>Next Destination: Santorini, Greece</span>
       </div>
@@ -206,8 +217,8 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Registration Form with Autofill Disabled */}
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             
             {/* Full Name */}
             <div>
@@ -223,7 +234,8 @@ export default function RegisterPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="pethe om"
+                  placeholder="Enter your full name"
+                  autoComplete="off"
                   className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800/60 border ${
                     errors.name
                       ? "border-rose-500 focus:ring-rose-500"
@@ -253,7 +265,8 @@ export default function RegisterPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="petheom05@gmail.com"
+                  placeholder="name@example.com"
+                  autoComplete="off"
                   className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800/60 border ${
                     errors.email
                       ? "border-rose-500 focus:ring-rose-500"
@@ -284,6 +297,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   className={`w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800/60 border ${
                     errors.password
                       ? "border-rose-500 focus:ring-rose-500"
@@ -337,6 +351,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   className={`w-full pl-10 pr-10 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-800/60 border ${
                     errors.confirmPassword
                       ? "border-rose-500 focus:ring-rose-500"
